@@ -32,6 +32,7 @@ const createLead = TryCatch(async (req, res) => {
     followup_reason,
     location,
     prc_qt,
+    leadCategory,
   } = req.body;
 
   const websiteCofiguration = await websiteConfigurationModel
@@ -72,6 +73,7 @@ const createLead = TryCatch(async (req, res) => {
       followup_reason,
       prc_qt,
       location,
+      leadCategory,
     });
     lead = await leadModel.findById(lead._id).populate("products");
 
@@ -262,6 +264,7 @@ const createLead = TryCatch(async (req, res) => {
       followup_reason,
       prc_qt,
       location,
+      leadCategory,
     });
     lead = await leadModel.findById(lead._id).populate("products");
 
@@ -441,6 +444,7 @@ const editLead = TryCatch(async (req, res) => {
     followup_reason,
     prc_qt,
     location,
+    leadCategory,
   } = req.body;
 
   const isExistingLead = await leadModel
@@ -485,6 +489,7 @@ const editLead = TryCatch(async (req, res) => {
             source,
             prc_qt,
             location,
+            leadCategory,
           },
         },
         { new: true }
@@ -534,6 +539,7 @@ const editLead = TryCatch(async (req, res) => {
             source,
             prc_qt,
             location,
+            leadCategory,
           },
         },
         { new: true }
@@ -573,7 +579,7 @@ const editLead = TryCatch(async (req, res) => {
       { _id: leadId },
       {
         $unset: { assigned: "", followup_date: "", followup_reason: "" },
-        $set: { status: status, source, notes, prc_qt, location },
+        $set: { status: status, source, notes, prc_qt, location, leadCategory },
       },
       { new: true }
     );
@@ -913,6 +919,7 @@ const allLeads = TryCatch(async (req, res) => {
       createdAt: lead?.createdAt,
       location: lead?.location,
       prc_qt: lead?.prc_qt,
+      leadCategory: lead?.leadCategory,
     };
   });
 
@@ -1235,8 +1242,6 @@ const bulkUpload = async (req, res) => {
       // Remove the CSV file
       fs.unlink(req.file.path, () => {});
 
-      // Check the CSV Data whether it is valid or not
-      console.log(response);
       await checkDataValidity(response);
 
       const customerPromise = response.map(async (data) => {
@@ -1281,6 +1286,7 @@ const bulkUpload = async (req, res) => {
                 email: data?.email,
                 name: isExistingPeople?.firstname,
                 productname: product?.name,
+                leadCategory: data?.leadCategory
               };
             }
           } else if (data?.type?.toLowerCase() === "corporate") {
@@ -1296,6 +1302,7 @@ const bulkUpload = async (req, res) => {
                 phone: data?.phone,
                 contact: data?.contact,
                 website: data?.website,
+                leadCategory: data?.leadCategory
               });
             }
             if (isExistingCompany) {
@@ -1323,6 +1330,7 @@ const bulkUpload = async (req, res) => {
                 email: data?.email,
                 name: isExistingCompany?.companyname,
                 productname: product?.name,
+                leadCategory: data?.leadCategory
               };
             }
           }
@@ -1494,19 +1502,17 @@ const bulkDownload = TryCatch(async (req, res) => {
     .populate("company", "companyname email phone")
     .lean();
 
-    
-
   let processedLeads = leads.map((lead) => {
     console.log(leads);
     return {
       organization: lead.organization.company || "N/A",
-      leadtype:lead.leadtype || "N/A",
-      status:lead?.status || "N/A",
-      source:lead?.source || "N/A",
+      leadtype: lead.leadtype || "N/A",
+      status: lead?.status || "N/A",
+      source: lead?.source || "N/A",
       customer: lead?.people
-      ? lead?.people?.firstname + " " + (lead?.people?.lastname || "")
-      : "N/A",
-      notes:lead?.notes || "N/A",
+        ? lead?.people?.firstname + " " + (lead?.people?.lastname || "")
+        : "N/A",
+      notes: lead?.notes || "N/A",
       location: lead?.location || "N/A",
       createdAt: new Date(lead?.createdAt).toLocaleDateString(),
       updatedAt: new Date(lead?.updatedAt).toLocaleDateString(),
@@ -1516,14 +1522,14 @@ const bulkDownload = TryCatch(async (req, res) => {
       contact_no: lead?.people?.phone || "N/A",
       company_name: lead?.company?.companyname || "N/A",
       company_email: lead?.company?.email || "N/A",
-      company_phone: lead?.company?.phone || "N/A",   
-      followup_reason:lead?.followup_reason || "N/A",   
+      company_phone: lead?.company?.phone || "N/A",
+      lead_category: lead?.leadCategory || "N/A",
+      followup_reason: lead?.followup_reason || "N/A",
       followup_date: lead.followup_date
         ? new Date(lead.followup_date).toLocaleDateString()
         : undefined,
     };
   });
-
 
   const csv = parse(processedLeads);
 

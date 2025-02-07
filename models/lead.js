@@ -84,6 +84,14 @@ const leadSchema = mongoose.Schema(
     prc_qt: {
       type: String,
     },
+    leadCategory: {
+      type: String,
+      enum:[
+        'Hot',
+        'Cold',
+        'Warm'
+      ]
+    },
   },
   { timestamps: true }
 );

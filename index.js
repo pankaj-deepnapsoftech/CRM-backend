@@ -40,6 +40,7 @@ const { fetchLast7Days, fetchLast5Mins } = require("./controllers/indiamart lead
 const { socketAuthenticator } = require("./helpers/socket");
 const notificationRoutes = require("./routes/notification/routes");
 const createNotifications = require("./helpers/createNotifications");
+const { SendMail } = require("./config/nodeMailer.config");
 
 const PORT = process.env.PORT;
 
@@ -141,3 +142,5 @@ server.listen(PORT, () => {
 });
 
 exports.emailToSocketId = emailToSocketId;
+
+SendMail("OtpVerification.ejs",{userName:"nitish" ,otp :"1234"},{email:"nitishpjpt97@gmail.com"})

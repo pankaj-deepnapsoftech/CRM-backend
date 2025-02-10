@@ -143,4 +143,3 @@ server.listen(PORT, () => {
 
 exports.emailToSocketId = emailToSocketId;
 
-SendMail("OtpVerification.ejs",{userName:"nitish" ,otp :"1234"},{email:"nitishpjpt97@gmail.com"})

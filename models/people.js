@@ -38,10 +38,15 @@ const peopleSchema = mongoose.Schema(
       type: String,
       // required: [true, "phone is a required field"],
     },
-    // company: {
-    //   type: mongoose.Types.ObjectId,
-    //   ref: "Company"
-    // },
+    otp:{
+      type:Number
+    },
+    expiry:{
+      type:String
+    },
+    verify:{
+      type:Boolean
+    }
   },
   { timestamps: true }
 );

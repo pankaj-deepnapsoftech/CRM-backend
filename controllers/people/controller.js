@@ -1,3 +1,4 @@
+const { SendMail } = require("../../config/nodeMailer.config");
 const { TryCatch, ErrorHandler } = require("../../helpers/error");
 const customerModel = require("../../models/customer");
 const invoiceModel = require("../../models/invoice");
@@ -6,6 +7,7 @@ const offerModel = require("../../models/offer");
 const paymentModel = require("../../models/payment");
 const peopleModel = require("../../models/people");
 const proformaInvoiceModel = require("../../models/proformaInvoice");
+const { generateOTP } = require("../../utils/generateOtp");
 
 const createPeople = TryCatch(async (req, res) => {
   // const {firstname, lastname, company, email, phone} = req.body;
@@ -34,6 +36,10 @@ const createPeople = TryCatch(async (req, res) => {
   //     })
   // }
 
+  const { otp,expiresAt} = generateOTP()
+
+  SendMail("OtpVerification.ejs",{userName:firstname,otp  },{email,subject:"OTP Verification"})
+
   const person = await peopleModel.create({
     organization: req.user.organization,
     creator: req.user.id,
@@ -41,6 +47,9 @@ const createPeople = TryCatch(async (req, res) => {
     lastname,
     email,
     phone,
+    otp,
+    expiry:expiresAt,
+    verify:false
   });
 
   res.status(200).json({
@@ -184,10 +193,61 @@ const allPersons = TryCatch(async (req, res) => {
   });
 });
 
+const OtpVerification = TryCatch(async (req,res)=> {
+  const {otp} = req.body;
+  const {id} = req.params;
+
+  const find = await peopleModel.findById(id);
+  if(!find){
+    return res.status(404).json({
+      message:"user not found"
+    })
+  }
+  const date = Date.now();
+  if(date > find.expiry){
+    return res.status(400).json({
+      message:"OTP expired"
+    })
+  }
+
+  if(otp !== find.otp){
+    return res.status(404).json({
+      message:"Wrong OTP"
+    })
+  }
+
+  await peopleModel.findByIdAndUpdate(id,{verify:true})
+  return res.status(200).json({
+    message:"OTP Verifyed Successful"
+  })
+})
+
+const ResendOTP = TryCatch(async(req,res)=>{
+  const {id} = req.params;
+  const find = await peopleModel.findById(id);
+  if(!find){
+    return res.status(404).json({
+      message:"Wrong User"
+    })
+  }
+
+  const { otp,expiresAt} = generateOTP()
+
+  SendMail("OtpVerification.ejs",{userName:find.firstname,otp  },{email:find.email,subject:"OTP Verification"});
+  
+  await peopleModel.findByIdAndUpdate(id,{otp,expiry:expiresAt,})
+  return res.status(200).json({
+    message:"Resend OTP"
+  })
+
+})
+
 module.exports = {
   createPeople,
   editPeople,
   deletePeople,
   personDetails,
   allPersons,
+  OtpVerification,
+  ResendOTP
 };

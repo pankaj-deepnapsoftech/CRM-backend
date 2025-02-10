@@ -24,7 +24,7 @@ try {
     await transporter.sendMail({
       from: process.env.EMAIL_ID, 
       to: reciverData.email, 
-      subject: "OTP Verification", 
+      subject: reciverData.subject, 
       text: "Itsybizz OTP",
       html: Emailtemplate,
     });

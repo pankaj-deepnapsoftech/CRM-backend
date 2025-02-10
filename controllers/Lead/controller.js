@@ -1503,7 +1503,6 @@ const bulkDownload = TryCatch(async (req, res) => {
     .lean();
 
   let processedLeads = leads.map((lead) => {
-    console.log(leads);
     return {
       organization: lead.organization.company || "N/A",
       leadtype: lead.leadtype || "N/A",

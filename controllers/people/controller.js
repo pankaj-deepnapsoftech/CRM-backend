@@ -181,6 +181,7 @@ const allPersons = TryCatch(async (req, res) => {
       lastname: p.lastname,
       phone: p.phone,
       email: p.email,
+      verify:p.verify,
       creator: p.creator.name,
       createdAt: p.createdAt
     };

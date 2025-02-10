@@ -242,6 +242,14 @@ const ResendOTP = TryCatch(async(req,res)=>{
 
 })
 
+const VerifyedPeople = TryCatch(async(_req,res)=>{
+  const data = await peopleModel.find({verify:true})
+  return res.status(200).json({
+    message:"data",
+    data
+  })
+})
+
 module.exports = {
   createPeople,
   editPeople,
@@ -249,5 +257,6 @@ module.exports = {
   personDetails,
   allPersons,
   OtpVerification,
-  ResendOTP
+  ResendOTP,
+  VerifyedPeople
 };

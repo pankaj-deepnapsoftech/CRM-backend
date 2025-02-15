@@ -5,6 +5,7 @@ const {
   getRecordById,
   updateRecord,
   deleteRecord,
+  DateWiseRecord,
 } = require("../../controllers/excel/controller.js");
 const uploadMiddleware = require("../../utils/RenewalMulter.js");
 
@@ -16,5 +17,6 @@ router.get("/all-records", getAllRecords);
 router.get("/record/:id", getRecordById);
 router.put("/update-record/:id", uploadMiddleware,updateRecord);
 router.delete("/delete-record/:id", deleteRecord);
+router.get("/date-wise", DateWiseRecord);
 
 module.exports = router;

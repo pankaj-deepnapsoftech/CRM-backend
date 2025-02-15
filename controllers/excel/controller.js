@@ -200,10 +200,34 @@ const deleteRecord = async (req, res) => {
   }
 };
 
+const DateWiseRecord = async (_req, res) => {
+  try {
+    const currentDate = new Date(); 
+    currentDate.setHours(0, 0, 0, 0);
+
+    const sevenDaysFromNow = new Date(currentDate);
+    sevenDaysFromNow.setDate(currentDate.getDate() + 7);
+
+   
+    const records = await Excel.find();
+    const filter = records.filter((item)=> item.lastRenewalDate >= currentDate && item.lastRenewalDate <= sevenDaysFromNow)
+
+    return res.status(200).json({
+      data: filter,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({
+      message: "something wrong",
+    });
+  }
+};
+
 module.exports = {
   createRecord,
   getAllRecords,
   getRecordById,
   updateRecord,
   deleteRecord,
+  DateWiseRecord,
 };

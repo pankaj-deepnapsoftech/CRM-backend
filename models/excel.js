@@ -47,11 +47,11 @@ const excelSchema = mongoose.Schema(
       default: null,
     },
     renewalDate: {
-      type: String,
+      type: Date,
       required: true,
     },
     lastRenewalDate: {
-      type: String,
+      type: Date,
       required: true,
     },
     renewalTimes: {

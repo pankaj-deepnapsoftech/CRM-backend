@@ -14,7 +14,7 @@ const router = express.Router();
 router.post("/create-record", uploadMiddleware, createRecord);
 router.get("/all-records", getAllRecords);
 router.get("/record/:id", getRecordById);
-router.put("/update-record/:id", updateRecord);
+router.put("/update-record/:id", uploadMiddleware,updateRecord);
 router.delete("/delete-record/:id", deleteRecord);
 
 module.exports = router;

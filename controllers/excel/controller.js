@@ -105,27 +105,58 @@ const getRecordById = async (req, res) => {
 };
 
 // Update a record by ID
+
 const updateRecord = async (req, res) => {
   try {
-    const { contractType, otherContractType, mode, otherMode, ...updateData } =
-      req.body;
+    const {
+      custumerName,
+      phnNumber,
+      contractType,
+      otherContractType,
+      contractNumber,
+      productName,
+      mode,
+      otherMode,
+      renewalDate,
+      lastRenewalDate,
+      renewalTimes,
+    } = req.body;
 
-    if (contractType === "Other") {
-      updateData.contractType = otherContractType;
-      updateData.otherContractType = otherContractType;
-    } else {
-      updateData.contractType = contractType;
-      updateData.otherContractType = null;
-    }
+    const { doc, term, contractAttachment } = req.files || {};
 
-    if (mode === "Other") {
-      updateData.mode = otherMode;
-      updateData.otherMode = otherMode;
-    } else {
-      updateData.mode = mode;
-      updateData.otherMode = null;
-    }
+    // Validate required fields
+    // if (!custumerName || !contractNumber) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Customer Name and Contract Number are required",
+    //   });
+    // }
 
+    // Prepare update data
+    const updateData = {
+      custumerName,
+      phnNumber,
+      contractNumber,
+      productName,
+      renewalDate,
+      lastRenewalDate,
+      renewalTimes,
+    };
+
+    // Handle contract type
+    updateData.contractType =
+      contractType === "other" ? otherContractType : contractType;
+
+    // Handle mode
+    updateData.mode = mode === "other" ? otherMode : mode;
+
+    // Handle file uploads
+    if (doc) updateData.doc = doc[0].filename;
+    if (term) updateData.term = term[0].filename;
+    if (contractAttachment)
+      updateData.contractAttachment = contractAttachment[0].filename;
+
+    // Update the record in the database
     const updatedRecord = await Excel.findByIdAndUpdate(
       req.params.id,
       updateData,
@@ -133,13 +164,22 @@ const updateRecord = async (req, res) => {
     );
 
     if (!updatedRecord) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Record not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Record not found",
+      });
     }
-    res.status(200).json({ success: true, data: updatedRecord });
+
+    res.status(200).json({
+      success: true,
+      message: "Record updated successfully",
+      data: updatedRecord,
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({
+      success: false,
+      message: error.message || "Internal server error",
+    });
   }
 };
 

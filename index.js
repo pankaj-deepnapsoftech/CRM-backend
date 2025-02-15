@@ -41,6 +41,7 @@ const { socketAuthenticator } = require("./helpers/socket");
 const notificationRoutes = require("./routes/notification/routes");
 const createNotifications = require("./helpers/createNotifications");
 const { SendMail } = require("./config/nodeMailer.config");
+const RenewalRecord = require("./routes/excel/routes");
 
 const PORT = process.env.PORT;
 
@@ -72,11 +73,16 @@ const corsOptions = {
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {cors: corsOptions});
+const path = require("path");
 
+app.use(express.static("uploads"));
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.set("io", io);
+
+const filePath = path.join(__dirname, "uploads");
+app.use("/images", express.static(filePath));
 
 app.use("/api/organization", organizationRoutes);
 app.use("/api/auth", authRoutes);
@@ -111,6 +117,7 @@ app.use("/api/razorpay", razorpayRoutes);
 app.use("/api/notification", isAuthenticated, notificationRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/sms", isAuthenticated, smsRoutes);
+app.use("/api/renewal" , RenewalRecord);
 
 // Fetch Indiamart Leads
 fetchLast7Days();

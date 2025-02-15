@@ -36,9 +36,13 @@ const createPeople = TryCatch(async (req, res) => {
   //     })
   // }
 
-  const { otp,expiresAt} = generateOTP()
+  const { otp, expiresAt } = generateOTP();
 
-  SendMail("OtpVerification.ejs",{userName:firstname,otp  },{email,subject:"OTP Verification"})
+  SendMail(
+    "OtpVerification.ejs",
+    { userName: firstname, otp },
+    { email, subject: "OTP Verification" }
+  );
 
   const person = await peopleModel.create({
     organization: req.user.organization,
@@ -48,8 +52,8 @@ const createPeople = TryCatch(async (req, res) => {
     email,
     phone,
     otp,
-    expiry:expiresAt,
-    verify:false
+    expiry: expiresAt,
+    verify: false,
   });
 
   res.status(200).json({
@@ -167,11 +171,15 @@ const allPersons = TryCatch(async (req, res) => {
   let people = [];
 
   if (req.user.role === "Super Admin") {
-    people = await peopleModel.find({organization: req.user.organization}).sort({ createdAt: -1 }).populate('creator', 'name');
+    people = await peopleModel
+      .find({ organization: req.user.organization })
+      .sort({ createdAt: -1 })
+      .populate("creator", "name");
   } else {
     people = await peopleModel
       .find({ creator: req.user.id })
-      .sort({ createdAt: -1 }).populate('creator', 'name');
+      .sort({ createdAt: -1 })
+      .populate("creator", "name");
   }
 
   const results = people.map((p) => {
@@ -181,9 +189,9 @@ const allPersons = TryCatch(async (req, res) => {
       lastname: p.lastname,
       phone: p.phone,
       email: p.email,
-      verify:p.verify,
+      verify: p.verify,
       creator: p.creator.name,
-      createdAt: p.createdAt
+      createdAt: p.createdAt,
     };
   });
 
@@ -194,62 +202,81 @@ const allPersons = TryCatch(async (req, res) => {
   });
 });
 
-const OtpVerification = TryCatch(async (req,res)=> {
-  const {otp} = req.body;
-  const {id} = req.params;
+const OtpVerification = TryCatch(async (req, res) => {
+  const { otp } = req.body;
+  const { id } = req.params;
 
   const find = await peopleModel.findById(id);
-  if(!find){
+  if (!find) {
     return res.status(404).json({
-      message:"user not found"
-    })
+      message: "user not found",
+    });
   }
   const date = Date.now();
-  if(date > find.expiry){
+  if (date > find.expiry) {
     return res.status(400).json({
-      message:"OTP expired"
-    })
+      message: "OTP expired",
+    });
   }
 
-  if(otp !== find.otp){
+  if (otp !== find.otp) {
     return res.status(404).json({
-      message:"Wrong OTP"
-    })
+      message: "Wrong OTP",
+    });
   }
 
-  await peopleModel.findByIdAndUpdate(id,{verify:true})
+  await peopleModel.findByIdAndUpdate(id, { verify: true });
   return res.status(200).json({
-    message:"OTP Verifyed Successful"
-  })
-})
+    message: "OTP Verifyed Successful",
+    success: true,
+  });
+});
 
-const ResendOTP = TryCatch(async(req,res)=>{
-  const {id} = req.params;
+const ResendOTP = TryCatch(async (req, res) => {
+  const { id } = req.params;
   const find = await peopleModel.findById(id);
-  if(!find){
+  if (!find) {
     return res.status(404).json({
-      message:"Wrong User"
-    })
+      message: "Wrong User",
+    });
   }
 
-  const { otp,expiresAt} = generateOTP()
+  const { otp, expiresAt } = generateOTP();
 
-  SendMail("OtpVerification.ejs",{userName:find.firstname,otp  },{email:find.email,subject:"OTP Verification"});
-  
-  await peopleModel.findByIdAndUpdate(id,{otp,expiry:expiresAt,})
+  SendMail(
+    "OtpVerification.ejs",
+    { userName: find.firstname, otp },
+    { email: find.email, subject: "OTP Verification" }
+  );
+
+  await peopleModel.findByIdAndUpdate(id, { otp, expiry: expiresAt });
   return res.status(200).json({
-    message:"Resend OTP"
-  })
+    message: "Resend OTP",
+  });
+});
 
-})
+const VerifyedPeople = TryCatch(async (_req, res) => {
+  const data = await peopleModel
+    .find({ verify: true })
+    .sort({ _id: -1 })
+    .populate("creator", "name");
 
-const VerifyedPeople = TryCatch(async(_req,res)=>{
-  const data = await peopleModel.find({verify:true})
+  const verified = data.map((item) => ({
+    _id: item._id,
+    firstname: item.firstname,
+    lastname: item.lastname,
+    email: item.email,
+    phone: item.phone,
+    verify: item.verify,
+    creator: item.creator.name,
+    createdAt: item.createdAt,
+  }));
+
   return res.status(200).json({
-    message:"data",
-    data
-  })
-})
+    message: "data",
+    data: verified,
+  });
+});
 
 module.exports = {
   createPeople,
@@ -259,5 +286,5 @@ module.exports = {
   allPersons,
   OtpVerification,
   ResendOTP,
-  VerifyedPeople
+  VerifyedPeople,
 };

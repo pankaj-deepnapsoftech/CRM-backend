@@ -920,7 +920,7 @@ const allLeads = TryCatch(async (req, res) => {
       location: lead?.location,
       prc_qt: lead?.prc_qt,
       leadCategory: lead?.leadCategory,
-      dataBank:lead?.dataBank
+      dataBank: lead?.dataBank,
     };
   });
 
@@ -1710,9 +1710,9 @@ function isValidDate(date) {
 
 // lead move to data bank
 const dataBank = async (req, res) => {
-  const { dataInfo } = req.body;
+  const { dataInfo, dataBank } = req.body;
 
-  await leadModel.updateMany({ _id: { $in: dataInfo } }, { dataBank: true });
+  await leadModel.updateMany({ _id: { $in: dataInfo } }, { dataBank });
 
   res.status(200).json({
     status: 200,

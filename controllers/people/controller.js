@@ -278,20 +278,19 @@ const VerifyedPeople = TryCatch(async (_req, res) => {
   });
 });
 
-const SendBulkEmailVerifiedUser = TryCatch(async (req,res) => {
-  const {message,subject} = req.body;
+const SendBulkEmailVerifiedUser = TryCatch(async (req, res) => {
+  const { message, subject } = req.body;
   const data = await peopleModel
-  .find({ verify: true })
-  .sort({ _id: -1 })
-  .populate("creator", "name");
+    .find({ verify: true })
+    .sort({ _id: -1 })
+    .populate("creator", "name");
 
-  const email = data.map((item)=>([item?.email]))
-  await SendBulkMail({email,message,subject})
+  const email = data.map((item) => [item?.email]);
+  await SendBulkMail({ email, message, subject });
   return res.status(200).json({
-    message:"Mail send successful"
-  })
-
-})
+    message: "Mail send successful",
+  });
+});
 
 module.exports = {
   createPeople,
@@ -302,5 +301,5 @@ module.exports = {
   OtpVerification,
   ResendOTP,
   VerifyedPeople,
-  SendBulkEmailVerifiedUser
+  SendBulkEmailVerifiedUser,
 };

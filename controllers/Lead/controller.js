@@ -920,6 +920,7 @@ const allLeads = TryCatch(async (req, res) => {
       location: lead?.location,
       prc_qt: lead?.prc_qt,
       leadCategory: lead?.leadCategory,
+      dataBank:lead?.dataBank
     };
   });
 

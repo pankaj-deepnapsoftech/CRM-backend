@@ -1286,7 +1286,7 @@ const bulkUpload = async (req, res) => {
                 email: data?.email,
                 name: isExistingPeople?.firstname,
                 productname: product?.name,
-                leadCategory: data?.leadCategory
+                leadCategory: data?.leadCategory,
               };
             }
           } else if (data?.type?.toLowerCase() === "corporate") {
@@ -1302,7 +1302,7 @@ const bulkUpload = async (req, res) => {
                 phone: data?.phone,
                 contact: data?.contact,
                 website: data?.website,
-                leadCategory: data?.leadCategory
+                leadCategory: data?.leadCategory,
               });
             }
             if (isExistingCompany) {
@@ -1330,7 +1330,7 @@ const bulkUpload = async (req, res) => {
                 email: data?.email,
                 name: isExistingCompany?.companyname,
                 productname: product?.name,
-                leadCategory: data?.leadCategory
+                leadCategory: data?.leadCategory,
               };
             }
           }
@@ -1707,6 +1707,19 @@ function isValidDate(date) {
   return !isNaN(parsedDate.getTime());
 }
 
+// lead move to data bank
+const dataBank = async (req, res) => {
+  const { dataInfo } = req.body;
+
+  await leadModel.updateMany({ _id: { $in: dataInfo } }, { dataBank: true });
+
+  res.status(200).json({
+    status: 200,
+    success: true,
+    message: "Data uploaded successfully",
+  });
+};
+
 module.exports = {
   createLead,
   editLead,
@@ -1719,4 +1732,5 @@ module.exports = {
   bulkUpload,
   bulkAssign,
   bulkDownload,
+  dataBank,
 };

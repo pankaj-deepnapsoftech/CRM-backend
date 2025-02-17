@@ -81,6 +81,11 @@ const leadSchema = mongoose.Schema(
     location: {
       type: String,
     },
+    dataBank: {
+      type: Boolean,
+      default: false,
+      required:true
+    },
     prc_qt: {
       type: String,
     },
@@ -92,7 +97,9 @@ const leadSchema = mongoose.Schema(
         'Warm'
       ]
     },
+    
   },
+  
   { timestamps: true }
 );
 

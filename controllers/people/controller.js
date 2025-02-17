@@ -1,4 +1,4 @@
-const { SendMail } = require("../../config/nodeMailer.config");
+const { SendMail, SendBulkMail } = require("../../config/nodeMailer.config");
 const { TryCatch, ErrorHandler } = require("../../helpers/error");
 const customerModel = require("../../models/customer");
 const invoiceModel = require("../../models/invoice");
@@ -278,6 +278,21 @@ const VerifyedPeople = TryCatch(async (_req, res) => {
   });
 });
 
+const SendBulkEmailVerifiedUser = TryCatch(async (req,res) => {
+  const {message,subject} = req.body;
+  const data = await peopleModel
+  .find({ verify: true })
+  .sort({ _id: -1 })
+  .populate("creator", "name");
+
+  const email = data.map((item)=>([item?.email]))
+  await SendBulkMail({email,message,subject})
+  return res.status(200).json({
+    message:"Mail send successful"
+  })
+
+})
+
 module.exports = {
   createPeople,
   editPeople,
@@ -287,4 +302,5 @@ module.exports = {
   OtpVerification,
   ResendOTP,
   VerifyedPeople,
+  SendBulkEmailVerifiedUser
 };

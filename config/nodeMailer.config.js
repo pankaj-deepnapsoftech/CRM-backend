@@ -39,11 +39,11 @@ async function SendBulkMail(reciverData) {
       from: process.env.EMAIL_ID,
       to: reciverData.email,
       subject: reciverData.subject,
-      html: (
+      html: `
         <html>
-          <body>{reciverData.message}</body>
-        </html>
-      ),
+          <body>${reciverData.message}</body>
+        </html>`
+      ,
     });
 
     console.log("send mail");

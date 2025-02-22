@@ -50,7 +50,11 @@ const getAllPermissions = TryCatch(async (req, res) => {
       "payment",
       "customer",
       "report",
-      "support"
+      "support",
+      "emails",
+      "renewals",
+      "databank"
+      
     ],
   });
 });

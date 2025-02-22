@@ -19,7 +19,7 @@ const excelSchema = mongoose.Schema(
       default: null, // Stores custom contract type if "Other" is selected
     },
     contractNumber: {
-      type: Number,
+      type: String,
       required: true,
     },
     productName: {
@@ -27,12 +27,16 @@ const excelSchema = mongoose.Schema(
       required: true,
     },
     doc: {
-      type: String,
-      default: null,
+      type: Date,
     },
-    term: {
-      type: String,
-      default: null,
+    // term: {
+    //   type: String,
+    // },
+    years:{
+      type: Number,
+    },
+    months:{
+      type: Number,
     },
     mode: {
       type: String,

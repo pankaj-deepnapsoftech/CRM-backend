@@ -32,7 +32,8 @@
     "pdfkit-table": "^0.1.63",
     "razorpay": "^2.9.4",
     "request": "^2.88.2",
-    "socket.io": "^4.8.0"
+    "socket.io": "^4.8.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

@@ -1,5 +1,10 @@
 const express = require("express");
 const Excel = require("../../models/excel");
+const doc = require("pdfkit");
+const csv = require("csvtojson");
+const path = require("path");
+const xlsx = require("xlsx");
+const fs = require("fs");
 
 // Create a new record
 const createRecord = async (req, res) => {
@@ -19,18 +24,21 @@ const createRecord = async (req, res) => {
       renewalDate,
       lastRenewalDate,
       renewalTimes,
+      doc,
+      years,
+      months,
     } = req.body;
 
     // Base URL where your backend is hosted
     const baseUrl = process.env.IMG_BASE_URL;
 
     // Construct public URLs for images
-    const doc = req.files["doc"]
-      ? `${baseUrl}/images/${req.files["doc"][0].filename}`
-      : null;
-    const term = req.files["term"]
-      ? `${baseUrl}/images/${req.files["term"][0].filename}`
-      : null;
+    // const doc = req.files["doc"]
+    //   ? `${baseUrl}/images/${req.files["doc"][0].filename}`
+    //   : null;
+    // const term = req.files["term"]
+    //   ? `${baseUrl}/images/${req.files["term"][0].filename}`
+    //   : null;
     const contractAttachment = req.files["contractAttachment"]
       ? `${baseUrl}/images/${req.files["contractAttachment"][0].filename}`
       : null;
@@ -43,7 +51,8 @@ const createRecord = async (req, res) => {
       contractNumber,
       productName,
       doc,
-      term,
+      years,
+      months,
       mode: mode === "Other" ? otherMode : mode,
       otherMode: mode === "Other" ? otherMode : null,
       contractAttachment,
@@ -120,9 +129,12 @@ const updateRecord = async (req, res) => {
       renewalDate,
       lastRenewalDate,
       renewalTimes,
+      years,
+      months,
+      doc,
     } = req.body;
 
-    const { doc, term, contractAttachment } = req.files || {};
+    const { contractAttachment } = req.files || {};
 
     // Validate required fields
     // if (!custumerName || !contractNumber) {
@@ -141,6 +153,9 @@ const updateRecord = async (req, res) => {
       renewalDate,
       lastRenewalDate,
       renewalTimes,
+      years,
+      months,
+      doc,
     };
 
     // Handle contract type
@@ -151,8 +166,8 @@ const updateRecord = async (req, res) => {
     updateData.mode = mode === "other" ? otherMode : mode;
 
     // Handle file uploads
-    if (doc) updateData.doc = doc[0].filename;
-    if (term) updateData.term = term[0].filename;
+    // if (doc) updateData.doc = doc[0].filename;
+    // if (term) updateData.term = term[0].filename;
     if (contractAttachment)
       updateData.contractAttachment = contractAttachment[0].filename;
 
@@ -203,16 +218,16 @@ const deleteRecord = async (req, res) => {
 const DateWiseRecord = async (_req, res) => {
   try {
     const currentDate = new Date();
-    currentDate.setHours(0, 0, 0, 0); 
+    currentDate.setHours(0, 0, 0, 0);
 
     const sevenDaysFromNow = new Date(currentDate);
     sevenDaysFromNow.setDate(currentDate.getDate() + 7);
 
     const records = await Excel.find({
       lastRenewalDate: {
-        $gte: currentDate,  
-        $lt: sevenDaysFromNow 
-      }
+        $gte: currentDate,
+        $lt: sevenDaysFromNow,
+      },
     });
 
     return res.status(200).json({
@@ -220,13 +235,67 @@ const DateWiseRecord = async (_req, res) => {
     });
   } catch (error) {
     console.error("Error fetching and filtering records:", error); // Log the error
-    return res.status(500).json({  // Use 500 for server errors
+    return res.status(500).json({
+      // Use 500 for server errors
       message: "Failed to retrieve records.",
-      error: error.message // Include the error message for debugging
+      error: error.message, // Include the error message for debugging
     });
   }
 };
 
+// Bulk upload records from a CSV file
+const bulkUpload = async (req, res) => {
+  try {
+    if (!req.files || !req.files.excel) {
+      return res.status(400).json({
+        success: false,
+        message: "No Excel file uploaded.",
+      });
+    }
+
+    const filePath = req.files.excel[0].path; // Path to the uploaded Excel file
+    const workbook = xlsx.readFile(filePath); // Read the Excel file
+    const sheetName = workbook.SheetNames[0]; // Get the first sheet
+    const sheet = workbook.Sheets[sheetName];
+    const data = xlsx.utils.sheet_to_json(sheet); // Convert sheet to JSON
+
+    const records = data.map((row) => ({
+      // Exclude the _id field
+      contractType: row.contractType || "N/A",
+      custumerName: row.custumerName || "N/A",
+      phnNumber: row.phnNumber || "N/A",
+      contractNumber: row.contractNumber || "N/A",
+      productName: row.productName || "N/A",
+      doc: row.doc || "N/A",
+      mode: row.mode || "N/A",
+      contractAttachment: row.contractAttachment || "N/A",
+      renewalDate: row.renewalDate ? new Date(row.renewalDate) : null,
+      lastRenewalDate: row.lastRenewalDate
+        ? new Date(row.lastRenewalDate)
+        : null,
+      renewalTimes: parseInt(row.renewalTimes) || 0,
+      createdAt: row.createdAt ? new Date(row.createdAt) : new Date(),
+    }));
+
+    // Insert records into the database
+    await Excel.insertMany(records);
+
+    // Delete the uploaded file after processing
+    fs.unlinkSync(filePath);
+
+    res.status(201).json({
+      success: true,
+      message: "Bulk upload successful.",
+      data: records,
+    });
+  } catch (error) {
+    console.error("Error in bulk upload:", error);
+    res.status(500).json({
+      success: false,
+      message: "Invalid file format.",
+    });
+  }
+};
 
 module.exports = {
   createRecord,
@@ -235,4 +304,5 @@ module.exports = {
   updateRecord,
   deleteRecord,
   DateWiseRecord,
+  bulkUpload,
 };

@@ -22,6 +22,6 @@ router.get("/record/:id", getRecordById);
 router.put("/update-record/:id", uploadMiddleware, updateRecord);
 router.delete("/delete-record/:id", deleteRecord);
 router.get("/date-wise", DateWiseRecord);
-router.post("/bulk-upload", uploadMiddleware, bulkUpload);
+router.post("/bulk-upload", uploadMiddleware, bulkUpload) ;
 
 module.exports = router;

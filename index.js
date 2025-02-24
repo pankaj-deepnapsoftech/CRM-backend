@@ -74,7 +74,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {cors: corsOptions});
 const path = require("path");
-const { SendTemplate } = require("./controllers/whatsapp/controller");
+const { SendTemplate, CallbackUrl } = require("./controllers/whatsapp/controller");
 
 app.use(express.static("uploads"));
 app.use(cors(corsOptions));
@@ -120,6 +120,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/sms", isAuthenticated, smsRoutes);
 app.use("/api/renewal" , RenewalRecord);
 app.post("/api/send-builk-Whatsapp",SendTemplate)
+app.post("/webhook",CallbackUrl)
 
 // Fetch Indiamart Leads
 fetchLast7Days();

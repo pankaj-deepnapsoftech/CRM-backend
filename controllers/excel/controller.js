@@ -5,6 +5,7 @@ const csv = require("csvtojson");
 const path = require("path");
 const xlsx = require("xlsx");
 const fs = require("fs");
+const moment = require("moment"); // Install with `npm install moment`
 
 // Create a new record
 const createRecord = async (req, res) => {
@@ -253,35 +254,90 @@ const bulkUpload = async (req, res) => {
       });
     }
 
-    const filePath = req.files.excel[0].path; // Path to the uploaded Excel file
-    const workbook = xlsx.readFile(filePath); // Read the Excel file
-    const sheetName = workbook.SheetNames[0]; // Get the first sheet
-    const sheet = workbook.Sheets[sheetName];
-    const data = xlsx.utils.sheet_to_json(sheet); // Convert sheet to JSON
+    const filePath = req.files.excel[0].path;
+    console.log("File Path:", filePath);
 
+    // Validate file type
+    if (!filePath.endsWith(".xlsx") && !filePath.endsWith(".csv")) {
+      fs.unlinkSync(filePath);
+      return res.status(400).json({
+        success: false,
+        message: "Invalid file type. Only .xlsx or .csv files are allowed.",
+      });
+    }
+
+    const workbook = xlsx.readFile(filePath);
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const data = xlsx.utils.sheet_to_json(sheet);
+
+    // Validate required fields
+    const requiredFields = [
+      "contractType",
+      "custumerName",
+      "phnNumber",
+      "contractNumber",
+    ];
+    const missingFields = requiredFields.filter(
+      (field) => !data[0]?.hasOwnProperty(field)
+    );
+
+    if (missingFields.length > 0) {
+      fs.unlinkSync(filePath);
+      return res.status(400).json({
+        success: false,
+        message: `Missing required fields: ${missingFields.join(", ")}`,
+      });
+    }
+
+    // Function to parse dates correctly
+    function parseDate(value) {
+      if (!value || value === "N/A") return null; // Handle missing values
+
+      if (typeof value === "number") {
+        // Convert Excel serial number to actual date
+        return new Date((value - 25569) * 86400 * 1000);
+      }
+
+      // Parse MM/DD/YYYY format correctly
+      const parsedDate = moment(value, ["MM/DD/YYYY"], true);
+      return parsedDate.isValid() ? parsedDate.toDate() : null;
+    }
+
+    // Process Excel data
     const records = data.map((row) => ({
-      // Exclude the _id field
-      contractType: row.contractType || "N/A",
       custumerName: row.custumerName || "N/A",
       phnNumber: row.phnNumber || "N/A",
+      contractType: row.contractType || "N/A",
       contractNumber: row.contractNumber || "N/A",
       productName: row.productName || "N/A",
-      doc: row.doc || "N/A",
+      doc: parseDate(row.doc), // Parse date
+      years: row.years || "N/A",
+      months: row.months || "N/A",
       mode: row.mode || "N/A",
       contractAttachment: row.contractAttachment || "N/A",
-      renewalDate: row.renewalDate ? new Date(row.renewalDate) : null,
-      lastRenewalDate: row.lastRenewalDate
-        ? new Date(row.lastRenewalDate)
-        : null,
-      renewalTimes: parseInt(row.renewalTimes) || 0,
-      createdAt: row.createdAt ? new Date(row.createdAt) : new Date(),
+      renewalDate: parseDate(row.renewalDate), // Parse date
+      lastRenewalDate: parseDate(row.lastRenewalDate), // Parse date
+      renewalTimes: row.renewalTimes || "N/A",
     }));
+
+    // ✅ Function to Parse Dates Safely
+    // function parseDate(dateString) {
+    //   if (!dateString || dateString === "N/A") return null; // Handle missing or invalid values
+
+    //   // Try parsing with different formats
+    //   const parsedDate = moment(
+    //     dateString,
+    //     ["DD/MM/YYYY", "MM/DD/YYYY", "YYYY-MM-DD"],
+    //     true
+    //   );
+    //   return parsedDate.isValid() ? parsedDate.toDate() : null; // Convert to Date object or null
+    // }
 
     // Insert records into the database
     await Excel.insertMany(records);
 
     // Delete the uploaded file after processing
-    fs.unlinkSync(filePath);
 
     res.status(201).json({
       success: true,
@@ -290,9 +346,12 @@ const bulkUpload = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in bulk upload:", error);
+    // if (fs.existsSync(filePath)) {
+    //   fs.unlinkSync(filePath);
+    // }
     res.status(500).json({
       success: false,
-      message: "Invalid file format.",
+      message: error.message || "An error occurred during bulk upload.",
     });
   }
 };

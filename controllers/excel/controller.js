@@ -245,6 +245,40 @@ const DateWiseRecord = async (_req, res) => {
   }
 };
 
+const bulkDeleteRenewals = async (req, res) => {
+  try {
+    const { ids } = req.body; // Array of IDs to delete
+
+    // Check if IDs are provided and are in an array
+    if (!ids || !Array.isArray(ids)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid input. Please provide an array of IDs.",
+      });
+    }
+
+    // Delete multiple records using $in operator
+    const deleteResult = await Excel.deleteMany({ _id: { $in: ids } });
+
+    // Check if any records were deleted
+    if (deleteResult.deletedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No records found with the provided IDs.",
+      });
+    }
+
+    // Success response
+    res.status(200).json({
+      success: true,
+      message: `${deleteResult.deletedCount} records deleted successfully.`,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
 // Bulk upload records from a CSV file
 const bulkUpload = async (req, res) => {
   try {
@@ -365,4 +399,5 @@ module.exports = {
   deleteRecord,
   DateWiseRecord,
   bulkUpload,
+  bulkDeleteRenewals
 };

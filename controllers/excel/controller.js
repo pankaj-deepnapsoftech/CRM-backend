@@ -249,6 +249,7 @@ const bulkDeleteRenewals = async (req, res) => {
   try {
     const { ids } = req.body; // Array of IDs to delete
 
+
     // Check if IDs are provided and are in an array
     if (!ids || !Array.isArray(ids)) {
       return res.status(400).json({
@@ -356,6 +357,7 @@ const bulkUpload = async (req, res) => {
       renewalTimes: row.renewalTimes || "N/A",
     }));
 
+    console.log(records);
     // ✅ Function to Parse Dates Safely
     // function parseDate(dateString) {
     //   if (!dateString || dateString === "N/A") return null; // Handle missing or invalid values

@@ -45,6 +45,10 @@ const leadSchema = mongoose.Schema(
         "Professionals Network",
         "Customer Referral",
         "Sales",
+        "Digital Marketing",
+        "Upwork",
+        "Gem",
+        "Freelancer"
       ],
       default: "Social Media",
     },

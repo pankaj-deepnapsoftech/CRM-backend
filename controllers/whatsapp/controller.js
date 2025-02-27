@@ -16,17 +16,7 @@ exports.SendTemplate = async (req, res) => {
           language: {
             code: template_lang,
           },
-          // "components": [
-          //     {
-          //         "type": "body",
-          //         "parameters": [
-          //             {
-          //                 "type": "text",
-          //                 "text": "text-string"
-          //             },
-          //         ]
-          //     }
-          // ]
+          "components": components
         },
       };
 
@@ -49,14 +39,13 @@ exports.SendTemplate = async (req, res) => {
     return res.status(200).json({
       message:"Message send successful",
       sendData
-    })
+    });
+
   } catch (error) {
-    res
-      .status(400)
-      .json({ message: `message sending error on ${item.phone} ` });
+    res.status(400).json({ message: `message sending error on ${item.phone} ` });
   }
 };
 
 exports.NavigateTowhatsapp = async (req, res) => {
-  return res.redirect("https://wa.me/9205404076");
+  return res.redirect("https://wa.me/919205404076");
 };

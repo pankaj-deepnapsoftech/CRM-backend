@@ -2,21 +2,23 @@ const axios = require("axios");
 
 exports.SendTemplate = async (req, res) => {
   try {
-    const { data, components, template_name, template_lang } = req.body;
-    let sendData = [];
-
-    for (let item of data) {
+    const { phone, components, template_name, template_lang } = req.body;
       const templateData = {
         messaging_product: "whatsapp",
         recipient_type: "individual",
-        to: `91${item.phone}`,
+        to: `91${phone}`,
         type: "template",
         template: {
           name: template_name,
           language: {
             code: template_lang,
           },
-          "components": components
+          components: [
+            {
+              type: "body",
+              parameters: components,
+            },
+          ],
         },
       };
 
@@ -30,19 +32,13 @@ exports.SendTemplate = async (req, res) => {
           },
         }
       );
-      
-      if(data.statusText === 'OK'){
-        sendData.push(data.data)
-      }
-    }
 
     return res.status(200).json({
-      message:"Message send successful",
-      sendData
+      message: "Message send successful",
+      data:data.data,
     });
-
   } catch (error) {
-    res.status(400).json({ message: `message sending error on ${item.phone} ` });
+    res.status(400).json({ message: `message sending error ` });
   }
 };
 

@@ -28,6 +28,7 @@ const createRecord = async (req, res) => {
       doc,
       years,
       months,
+      status,
     } = req.body;
 
     // Base URL where your backend is hosted
@@ -60,6 +61,7 @@ const createRecord = async (req, res) => {
       renewalDate,
       lastRenewalDate,
       renewalTimes,
+      status,
     });
 
     await newRecord.save();
@@ -89,7 +91,7 @@ const getAllRecords = async (req, res) => {
       renewalDate: record.renewalDate || "N/A",
       lastRenewalDate: record.lastRenewalDate || "N/A",
       renewalTimes: record.renewalTimes || "N/A",
-
+      status:record.status || "N/A",
       createdAt: record.createdAt || new Date(),
     }));
 
@@ -133,6 +135,7 @@ const updateRecord = async (req, res) => {
       years,
       months,
       doc,
+      status,
     } = req.body;
 
     const baseUrl = process.env.IMG_BASE_URL;
@@ -165,6 +168,7 @@ const updateRecord = async (req, res) => {
       doc,
       contractType: contractType === "other" ? otherContractType : contractType,
       mode: mode === "other" ? otherMode : mode,
+      status,
     };
 
     // Handle file uploads

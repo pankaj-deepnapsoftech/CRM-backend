@@ -4,7 +4,7 @@ const SMSLog = require("../../models/sms.js"); // Import the SMSLog model
 
 const sendBulkSms = async (req, res) => {
   try {
-    const { mobiles, templateId, message } = req.body;
+    const { mobiles, templateId, message ,name} = req.body;
     console.log(req.body);
     // Fetch organization-specific SMS configuration
     const websiteConfiguration = await websiteConfigurationModel.findOne({
@@ -53,6 +53,13 @@ const sendBulkSms = async (req, res) => {
         message: "Mobile no. not provided",
       });
     }
+    if (!name || name.length === 0) {
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        message: "Name is  not provided",
+      });
+    }
 
     // Log the SMS details before sending
     const logEntry = new SMSLog({
@@ -61,6 +68,7 @@ const sendBulkSms = async (req, res) => {
       message,
       senderId,
       entityId,
+      name,
       organization: req.user.organization, // Assuming req.user.organization contains the organization ID
     });
     await logEntry.save();

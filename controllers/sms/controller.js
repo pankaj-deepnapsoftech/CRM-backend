@@ -101,7 +101,7 @@ const getBulkSms = async (req, res) => {
   try {
     const logs = await SMSLog.find({
       organization: req.user.organization,
-    }).sort({ timestamp: -1 }); // Fetch logs sorted by timestamp
+    }).sort({ timestamp: -1 }).populate(" organization") ; // Fetch logs sorted by timestamp
 
     console.log(logs);
     res.status(200).json({

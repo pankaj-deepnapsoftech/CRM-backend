@@ -28,6 +28,7 @@ const excelSchema = mongoose.Schema(
     },
     status: {
       enum: ["pending", "renewed"],
+      default: "pending",
     },
     doc: {
       type: Date,

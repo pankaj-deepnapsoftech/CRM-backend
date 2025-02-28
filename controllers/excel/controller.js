@@ -226,7 +226,7 @@ const DateWiseRecord = async (_req, res) => {
     sevenDaysFromNow.setDate(currentDate.getDate() + 7);
 
     const records = await Excel.find({
-      lastRenewalDate: {
+      renewalDate: {
         $gte: currentDate,
         $lt: sevenDaysFromNow,
       },

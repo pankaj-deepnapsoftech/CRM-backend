@@ -48,7 +48,9 @@ const leadSchema = mongoose.Schema(
         "Digital Marketing",
         "Upwork",
         "Gem",
-        "Freelancer"
+        "Freelancer",
+        "IndiaMart",
+        "Fiverr"
       ],
       default: "Social Media",
     },

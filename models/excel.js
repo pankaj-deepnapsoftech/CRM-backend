@@ -7,7 +7,7 @@ const excelSchema = mongoose.Schema(
       required: true,
     },
     phnNumber: {
-      type:String,
+      type: String,
       required: true,
     },
     contractType: {
@@ -26,16 +26,19 @@ const excelSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    status: {
+      enum: ["pending", "renewed"],
+    },
     doc: {
       type: Date,
     },
     // term: {
     //   type: String,
     // },
-    years:{
+    years: {
       type: String,
     },
-    months:{
+    months: {
       type: String,
     },
     mode: {
@@ -55,11 +58,10 @@ const excelSchema = mongoose.Schema(
     },
     lastRenewalDate: {
       type: Date,
-     
     },
+
     renewalTimes: {
-      type:String,
-      
+      type: String,
     },
   },
   {

@@ -2,14 +2,26 @@ const request = require("request");
 const websiteConfigurationModel = require("../../models/websiteConfiguration");
 const SMSLog = require("../../models/sms.js"); // Import the SMSLog model
 
+const axios = require("axios");
+
 const sendBulkSms = async (req, res) => {
   try {
-    const { mobiles, templateId, message ,name} = req.body;
+    const { mobiles, templateId, message, name } = req.body;
     console.log(req.body);
+
     // Fetch organization-specific SMS configuration
     const websiteConfiguration = await websiteConfigurationModel.findOne({
       organization: req.user.organization,
     });
+
+    if (!websiteConfiguration) {
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        message: "Organization configuration not found",
+      });
+    }
+
     const {
       sms_api_key,
       sms_api_secret,
@@ -57,7 +69,7 @@ const sendBulkSms = async (req, res) => {
       return res.status(400).json({
         status: 400,
         success: false,
-        message: "Name is  not provided",
+        message: "Name is not provided",
       });
     }
 
@@ -69,32 +81,32 @@ const sendBulkSms = async (req, res) => {
       senderId,
       entityId,
       name,
-      organization: req.user.organization, // Assuming req.user.organization contains the organization ID
+      organization: req.user.organization,
     });
+    console.log(logEntry);
     await logEntry.save();
 
     // Prepare options for sending SMS
-    let options = {
-      url: `${process.env.SEND_BULK_MSG_API}UserID=${sms_api_key}&Password=${sms_api_secret}&SenderID=${senderId}&Phno=${mobiles}&EntityID=${entityId}&TemplateID=${templateId}&Msg=${message}`,
-      headers: { "content-type": "application/x-www-form-urlencoded" },
-    };
+    const url = `${process.env.SEND_BULK_MSG_API}UserID=${sms_api_key}&Password=${sms_api_secret}&SenderID=${senderId}&Phno=${mobiles}&EntityID=${entityId}&TemplateID=${templateId}&Msg=${message}`;
 
-    // Send SMS
-    request.post(options, function (error, response, body) {
-      if (!error && response.statusCode == 200) {
-        return res.status(200).json({
-          status: 200,
-          success: true,
-          message: "Message sent successfully",
-        });
-      } else {
-        return res.status(500).json({
-          status: 500,
-          success: false,
-          message: "Something went wrong while sending the SMS",
-        });
-      }
+    // Send SMS using axios
+    const response = await axios.post(url, null, {
+      headers: { "content-type": "application/x-www-form-urlencoded" },
     });
+
+    if (response.status === 200) {
+      return res.status(200).json({
+        status: 200,
+        success: true,
+        message: "Message sent successfully",
+      });
+    } else {
+      return res.status(500).json({
+        status: 500,
+        success: false,
+        message: "Something went wrong while sending the SMS",
+      });
+    }
   } catch (err) {
     console.error(err);
     return res.status(500).json({
@@ -109,7 +121,9 @@ const getBulkSms = async (req, res) => {
   try {
     const logs = await SMSLog.find({
       organization: req.user.organization,
-    }).sort({ timestamp: -1 }).populate(" organization") ; // Fetch logs sorted by timestamp
+    })
+      .sort({ timestamp: -1 }) // Fetch logs sorted by timestamp
+      .populate("organization"); // Populate the organization field
 
     console.log(logs);
     res.status(200).json({

@@ -7,6 +7,7 @@ const websiteConfigurationSchema = mongoose.Schema(
       ref: "Organization",
       required: [true, "organization is a required field"],
     },
+    name: { type: String, required: true },
     creator: {
       type: mongoose.Types.ObjectId,
       ref: "Admin",

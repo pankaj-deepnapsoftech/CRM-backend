@@ -214,16 +214,16 @@ const customerDetails = TryCatch(async (req, res) => {
       _id: customer._id,
       name:
         customer.people !== undefined
-          ? customer.people.firstname + customer.people.lastname
-          : customer.company.companyname,
+          ? customer.people?.firstname + customer.people?.lastname
+          : customer.company?.companyname,
       email:
         customer.people !== undefined
-          ? customer.people.email
-          : customer.company.email,
+          ? customer.people?.email
+          : customer.company?.email,
       phone:
         customer.people !== undefined
-          ? customer.people.phone
-          : customer.company.phone,
+          ? customer.people?.phone
+          : customer.company?.phone,
       customertype: customer.customertype,
       status: customer.status,
       products: customer.products
@@ -242,9 +242,7 @@ const allCustomers = TryCatch(async (req, res) => {
   customers = await customerModel
     .find({organization: req.user.organization})
     .sort({ createdAt: -1 })
-    // .skip(skip)
-    // .limit(totalCustomersPerPage)
-    .populate("people", "firstname lastname email phone")
+    .populate("people")
     .populate("company", "companyname email phone")
     .populate('creator', 'name');
  }
@@ -252,19 +250,17 @@ const allCustomers = TryCatch(async (req, res) => {
   customers = await customerModel
   .find({organization: req.user.organization, creator: req.user.id})
   .sort({ createdAt: -1 })
-  // .skip(skip)
-  // .limit(totalCustomersPerPage)
-  .populate("people", "firstname lastname email phone")
+  .populate("people")
   .populate("company", "companyname email phone")
   .populate('creator', 'name');
  }
- 
+
   const results = customers.map((customer) => {
     return {
       _id: customer._id,
       name:
         customer.people !== undefined
-          ? customer.people?.firstname + " " + (customer.people?.lastname || '')
+          ? customer?.people?.firstname + " " + (customer?.people?.lastname || '')
           : customer.company?.companyname,
       email:
         customer.people !== undefined

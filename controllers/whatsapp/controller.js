@@ -3,6 +3,7 @@ const axios = require("axios");
 exports.SendTemplate = async (req, res) => {
   try {
     const { phone, components, template_name, template_lang } = req.body;
+    
       const templateData = {
         messaging_product: "whatsapp",
         recipient_type: "individual",
@@ -21,7 +22,8 @@ exports.SendTemplate = async (req, res) => {
           ],
         },
       };
-
+     
+     
       const data = await axios.post(
         "https://graph.facebook.com/v21.0/575068729020861/messages",
         templateData,

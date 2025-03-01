@@ -7,7 +7,6 @@ const axios = require("axios");
 const sendBulkSms = async (req, res) => {
   try {
     const { mobiles, templateId, message, name } = req.body;
-    console.log(req.body);
 
     // Fetch organization-specific SMS configuration
     const websiteConfiguration = await websiteConfigurationModel.findOne({
@@ -125,7 +124,6 @@ const getBulkSms = async (req, res) => {
       .sort({ timestamp: -1 }) // Fetch logs sorted by timestamp
       .populate("organization"); // Populate the organization field
 
-    console.log(logs);
     res.status(200).json({
       status: 200,
       success: true,

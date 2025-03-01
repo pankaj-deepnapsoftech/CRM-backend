@@ -10,7 +10,7 @@ const peopleSchema = mongoose.Schema(
     organization: {
       type: mongoose.Types.ObjectId,
       ref: "Organization",
-      required: [true, 'organization is a required field']
+      required: [true, "organization is a required field"],
     },
     // organization: {
     //   type: mongoose.Types.ObjectId,
@@ -38,15 +38,21 @@ const peopleSchema = mongoose.Schema(
       type: String,
       // required: [true, "phone is a required field"],
     },
-    otp:{
-      type:Number
+    otp: {
+      type: Number,
     },
-    expiry:{
-      type:String
+    expiry: {
+      type: String,
     },
-    verify:{
-      type:Boolean
-    }
+    verify: {
+      type: Boolean,
+    },
+    emailSentDate: {
+      type: Date,
+    },
+    whatsappSentDate: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );

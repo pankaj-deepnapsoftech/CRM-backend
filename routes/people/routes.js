@@ -1,5 +1,5 @@
 const express = require('express');
-const { createPeople, editPeople, deletePeople, personDetails, allPersons, OtpVerification, ResendOTP, VerifyedPeople, SendBulkEmailVerifiedUser } = require('../../controllers/people/controller');
+const { createPeople, editPeople, deletePeople, personDetails, allPersons, OtpVerification, ResendOTP, VerifyedPeople, SendBulkEmailVerifiedUser, getAllEmailSentData, getAllWhatsappSentData } = require('../../controllers/people/controller');
 const { createPeopleValidator, validateHandler, editPeopleValidator, deletePeopleValidator, peopleDetailsValidator } = require('../../validators/people/validator');
 const { checkAccess } = require('../../helpers/checkAccess');
 const router = express.Router();
@@ -13,5 +13,7 @@ router.patch("/verify-people/:id",checkAccess, OtpVerification);
 router.post("/resend-otp/:id",checkAccess, ResendOTP);
 router.get("/verified-peoples",VerifyedPeople)
 router.post("/send-bulk-mail",SendBulkEmailVerifiedUser)
+router.get("/get-bulk-mail",getAllEmailSentData);
+router.get("/get-bulk-whatsapp",getAllWhatsappSentData);
 
 module.exports = router;

@@ -285,10 +285,39 @@ const SendBulkEmailVerifiedUser = TryCatch(async (req, res) => {
     .sort({ _id: -1 })
     .populate("creator", "name");
 
+  for (let person of data) {
+    // Set the emailSentDate for each person
+    person.emailSentDate = Date.now();
+
+    // Save the updated document
+    await person.save();
+  }
+
+  console.log(data);
+
   const email = data.map((item) => [item?.email]);
   await SendBulkMail({ email, message, subject });
   return res.status(200).json({
     message: "Mail send successful",
+  });
+});
+
+const getAllEmailSentData = TryCatch(async (req, res) => {
+  const data = await peopleModel
+    .find({ emailSentDate: { $exists: true } }) // This ensures the field exists
+    .populate("creator", "name");
+
+  return res.status(200).json({
+    data,
+  });
+});
+const getAllWhatsappSentData = TryCatch(async (req, res) => {
+  const data = await peopleModel
+    .find({ whatsappSentDate: { $exists: true } })
+    .populate("creator", "name");
+
+  return res.status(200).json({
+    data,
   });
 });
 
@@ -302,4 +331,6 @@ module.exports = {
   ResendOTP,
   VerifyedPeople,
   SendBulkEmailVerifiedUser,
+  getAllEmailSentData,
+  getAllWhatsappSentData,
 };

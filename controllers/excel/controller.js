@@ -10,8 +10,7 @@ const moment = require("moment"); // Install with `npm install moment`
 // Create a new record
 const createRecord = async (req, res) => {
   try {
-    console.log("Request Body:", req.body);
-    console.log("Uploaded Files:", req.files);
+
 
     const {
       custumerName,
@@ -29,6 +28,7 @@ const createRecord = async (req, res) => {
       years,
       months,
       status,
+      remarks,
     } = req.body;
 
     // Base URL where your backend is hosted
@@ -62,6 +62,7 @@ const createRecord = async (req, res) => {
       lastRenewalDate,
       renewalTimes,
       status,
+      remarks,
     });
 
     await newRecord.save();
@@ -92,6 +93,7 @@ const getAllRecords = async (req, res) => {
       lastRenewalDate: record.lastRenewalDate || "N/A",
       renewalTimes: record.renewalTimes || "N/A",
       status:record.status || "N/A",
+      remarks:record.remarks || "N/A",
       createdAt: record.createdAt || new Date(),
     }));
 
@@ -136,10 +138,11 @@ const updateRecord = async (req, res) => {
       months,
       doc,
       status,
+      remarks
     } = req.body;
 
     const baseUrl = process.env.IMG_BASE_URL;
-    console.log(baseUrl)
+  
 
     // Construct public URL for contract attachment
     const contractAttachment = req.files["contractAttachment"]
@@ -169,6 +172,7 @@ const updateRecord = async (req, res) => {
       contractType: contractType === "other" ? otherContractType : contractType,
       mode: mode === "other" ? otherMode : mode,
       status,
+      remarks
     };
 
     // Handle file uploads
@@ -182,7 +186,7 @@ const updateRecord = async (req, res) => {
       updateData,
       { new: true, runValidators: true }
     );
-   console.log("Updated Record:", updatedRecord);
+
     if (!updatedRecord) {
       return res.status(404).json({
         success: false,

@@ -65,6 +65,10 @@ const excelSchema = mongoose.Schema(
     renewalTimes: {
       type: String,
     },
+
+    remarks: {
+      type: String,
+    }
   },
   {
     timestamps: true, // Fixed the typo (timeStamps -> timestamps)

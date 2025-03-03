@@ -18,7 +18,7 @@ exports.SendTemplate = async (req, res) => {
         components: [
           {
             type: "body",
-            parameters: components,
+            parameters: components,    
           },
         ],
       },

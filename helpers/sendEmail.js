@@ -15,8 +15,7 @@ const sendEmail = async (to, subject, text) => {
   };
   
   const transporter = nodemailer.createTransport({
-    service: "Gmail",
-    host: "smtp.gmail.com",
+    host: "smtp.hostinger.com",
     port: 465,
     secure: true,
     auth: {
@@ -27,9 +26,9 @@ const sendEmail = async (to, subject, text) => {
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
-      //   console.error("Error sending email: ", error);
+        //  console.error("Error sending email: ", error);
     } else {
-      //   console.log("Email sent: ", info.response);
+      //  console.log("Email sent: ", info.response);
     }
   });
 };

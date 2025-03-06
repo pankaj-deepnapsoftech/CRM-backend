@@ -482,7 +482,7 @@ const editLead = TryCatch(async (req, res) => {
         {
           $unset: { followup_date: "", followup_reason: "" },
           $set: {
-            creator: assigned,
+            creator: req.user.id,
             status: status,
             assigned,
             notes,
@@ -945,6 +945,10 @@ const assignedLeads = TryCatch(async (req, res) => {
     .populate("company", "-_id companyname email phone")
     .populate("assigned", "name")
     .populate("creator", "name");
+
+    // console.log(leads);
+    // console.log(req.user.organization);
+    // console.log(user)
 
   const indiamartLeads = await indiamartLeadModel
     .find({

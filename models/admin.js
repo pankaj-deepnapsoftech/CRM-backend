@@ -59,7 +59,10 @@ const adminSchema = mongoose.Schema(
         "customer",
         "report",
         "support",
-        "website configuration"
+        "website configuration",
+        "emails",
+        "renewals",
+        "databank"
       ],
       default: [],
     },

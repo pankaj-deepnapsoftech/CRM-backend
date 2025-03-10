@@ -82,7 +82,6 @@ const sendBulkSms = async (req, res) => {
       name,
       organization: req.user.organization,
     });
-    console.log(logEntry);
     await logEntry.save();
 
     // Prepare options for sending SMS

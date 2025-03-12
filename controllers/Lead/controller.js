@@ -530,11 +530,11 @@ const editLead = TryCatch(async (req, res) => {
       .findOneAndUpdate(
         { _id: leadId },
         {
-          $unset: { assigned: "" },
           $set: {
             status: status,
             followup_date,
             followup_reason,
+            assigned,
             notes,
             source,
             prc_qt,
@@ -578,8 +578,8 @@ const editLead = TryCatch(async (req, res) => {
     updatedLead = await leadModel.findOneAndUpdate(
       { _id: leadId },
       {
-        $unset: { assigned: "", followup_date: "", followup_reason: "" },
-        $set: { status: status, source, notes, prc_qt, location, leadCategory },
+        $unset: { followup_date: "", followup_reason: "" },
+        $set: { status: status, source, notes, prc_qt, location, leadCategory, assigned },
       },
       { new: true }
     );
@@ -937,7 +937,7 @@ const assignedLeads = TryCatch(async (req, res) => {
   const leads = await leadModel
     .find({
       organization: req.user.organization,
-      status: "Assigned",
+      assigned: { $exists: true, $ne: null },
       $or: [{ creator: user }, { assigned: user }],
     })
     .sort({ createdAt: -1 })
@@ -953,7 +953,7 @@ const assignedLeads = TryCatch(async (req, res) => {
   const indiamartLeads = await indiamartLeadModel
     .find({
       organization: req.user.organization,
-      status: "Assigned",
+      assigned: { $exists: true, $ne: null },
       assigned: user,
     })
     .sort({ createdAt: -1 })

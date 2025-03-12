@@ -37,6 +37,7 @@ exports.SendTemplate = async (req, res) => {
         },
       }
     );
+    
 
     // await peopleModel.findOneAndUpdate(
     //   { phone }, 

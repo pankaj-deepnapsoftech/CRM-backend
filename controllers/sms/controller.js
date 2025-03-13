@@ -5,6 +5,7 @@ const SMSLog = require("../../models/sms.js"); // Import the SMSLog model
 const axios = require("axios");
 
 const sendBulkSms = async (req, res) => {
+
   try {
     const { mobiles, templateId, message, name } = req.body;
 
@@ -91,6 +92,7 @@ const sendBulkSms = async (req, res) => {
     const response = await axios.post(url, null, {
       headers: { "content-type": "application/x-www-form-urlencoded" },
     });
+
 
     if (response.status === 200) {
       return res.status(200).json({
